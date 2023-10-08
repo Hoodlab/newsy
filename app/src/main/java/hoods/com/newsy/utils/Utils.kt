@@ -1,8 +1,8 @@
 package hoods.com.newsy.utils
 
 import hoods.com.newsy.R
-import hoods.com.newsy.models.Country
-import hoods.com.newsy.models.Language
+import hoods.com.newsy.features_components.core.domain.models.Country
+import hoods.com.newsy.features_components.core.domain.models.Language
 import java.text.SimpleDateFormat
 import java.util.Locale
 

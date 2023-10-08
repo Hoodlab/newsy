@@ -1,4 +1,4 @@
-package hoods.com.newsy
+package hoods.com.newsy.features_presentations.core
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,8 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import hoods.com.newsy.ui.theme.NewsyTheme
+import dagger.hilt.android.AndroidEntryPoint
+import hoods.com.newsy.features_presentations.core.ui.theme.NewsyTheme
+import hoods.com.newsy.features_presentations.home.HomeScreen
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +25,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    HomeScreen(
+                        onViewMoreClick = {},
+                        onHeadlineItemClick = {},
+                        onSearchClick = {},
+                        openDrawer = {}
+                    )
                 }
             }
         }

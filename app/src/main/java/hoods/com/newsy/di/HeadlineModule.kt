@@ -52,13 +52,12 @@ object HeadlineModule {
         api: HeadlineApi,
         database: NewsyArticleDatabase,
         mapper: Mapper<HeadlineDto, NewsyArticle>,
-        articleHeadlineMapper: Mapper<Article, HeadlineDto>,
     ): HeadlineRepository {
         return HeadlineRepositoryImpl(
             headlineApi = api,
             database = database,
             mapper = mapper,
-            articleHeadlineMapper = articleHeadlineMapper
+
         )
     }
 

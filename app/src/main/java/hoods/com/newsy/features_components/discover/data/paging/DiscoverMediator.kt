@@ -1,4 +1,4 @@
-package hoods.com.newsy.features_components.headline.data.paging
+package hoods.com.newsy.features_components.discover.data.paging
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
@@ -6,32 +6,30 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import hoods.com.newsy.features_components.core.data.local.NewsyArticleDatabase
-import hoods.com.newsy.features_components.core.data.remote.models.Article
-import hoods.com.newsy.features_components.core.data.remote.models.toHeadlineArticle
-import hoods.com.newsy.features_components.core.domain.mapper.Mapper
+import hoods.com.newsy.features_components.core.data.remote.models.toDiscoverArticle
+import hoods.com.newsy.features_components.discover.data.local.models.DiscoverArticleDto
+import hoods.com.newsy.features_components.discover.data.local.models.DiscoverKeys
+import hoods.com.newsy.features_components.discover.data.remote.DiscoverApi
 import hoods.com.newsy.features_components.headline.data.local.model.HeadlineDto
 import hoods.com.newsy.features_components.headline.data.local.model.HeadlineRemoteKey
-import hoods.com.newsy.features_components.headline.data.mapper.ArticleHeadlineDtoMapper
-import hoods.com.newsy.features_components.headline.data.remote.HeadlineApi
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
-class HeadlineRemoteMediator(
-    private val api: HeadlineApi,
+class DiscoverMediator(
+    private val api: DiscoverApi,
     private val database: NewsyArticleDatabase,
     private val category: String = "",
     private val country: String = "",
     private val language: String = "",
-) : RemoteMediator<Int, HeadlineDto>() {
+) : RemoteMediator<Int, DiscoverArticleDto>() {
 
     override suspend fun initialize(): InitializeAction {
-        val cacheTimeout = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES)
-        return if (
-            System.currentTimeMillis() -
-            (database.headlineRemoteDao().getCreationTime() ?: 0) < cacheTimeout
-        ) {
+        val cacheTimeOut = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES)
+        val isCacheTimeOut = System.currentTimeMillis() -
+                (database.discoverRemoteKeyDao().getCreationTime() ?: 0) < cacheTimeOut
+        return if (isCacheTimeOut) {
             InitializeAction.SKIP_INITIAL_REFRESH
         } else {
             InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -40,7 +38,7 @@ class HeadlineRemoteMediator(
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, HeadlineDto>,
+        state: PagingState<Int, DiscoverArticleDto>,
     ): MediatorResult {
         val page: Int = when (loadType) {
             LoadType.REFRESH -> {
@@ -65,85 +63,79 @@ class HeadlineRemoteMediator(
             }
         }
         return try {
-            val headlineApiResponse = api.getHeadlines(
-                pageSize = state.config.pageSize,
+            val discoverArticlesApiResponse = api.getDiscoverHeadlines(
                 category = category,
                 page = page,
                 country = country,
                 language = language,
+                pageSize = state.config.pageSize
             )
-            val headlineArticles = headlineApiResponse.articles
-            val endOfPaginationReached = headlineArticles.isEmpty()
-            database.apply {
+
+            val discoverArticles = discoverArticlesApiResponse.articles
+            val endOfPaginationReached = discoverArticles.isEmpty()
+            database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    database.apply {
-                        headlineRemoteDao().clearRemoteKeys()
-                        headlineDao().removeAllHeadlineArticles()
-                    }
+                    database.discoverRemoteKeyDao().clearRemoteKey(category)
+                    database.discoverArticleDao().removeAllDiscoverArticles(
+                        category
+                    )
                 }
                 val prevKey = if (page > 1) page - 1 else null
                 val nextKey = if (endOfPaginationReached) null else page + 1
-                val remoteKeys = headlineArticles.map {
-                    HeadlineRemoteKey(
+                val remoteKeys = discoverArticles.map {
+                    DiscoverKeys(
                         articleId = it.url,
                         prevKey = prevKey,
                         nextKey = nextKey,
-                        currentPage = page
+                        currentPage = page,
+                        currentCategory = category
                     )
                 }
-                database.apply {
-                    headlineRemoteDao().insertAll(remoteKeys)
-                    headlineDao().insertHeadlineArticle(
-                        articles = headlineArticles.map {
-                            it.toHeadlineArticle(page, category)
-                        }
-                    )
-                }
-
+                database.discoverRemoteKeyDao().insertAllKeys(remoteKeys)
+                database.discoverArticleDao().insertAllArticles(
+                    list = discoverArticles.map {
+                        it.toDiscoverArticle(page, category)
+                    }
+                )
             }
+
             MediatorResult.Success(endOfPaginationReached)
-        } catch (error: IOException) {
-            MediatorResult.Error(error)
-        } catch (error: HttpException) {
-            MediatorResult.Error(error)
+        } catch (e: IOException) {
+            MediatorResult.Error(e)
+        } catch (e: HttpException) {
+            MediatorResult.Error(e)
         }
 
     }
 
     private suspend fun getRemoteKeyForFirstItem(
-        state: PagingState<Int, HeadlineDto>,
-    ): HeadlineRemoteKey? {
+        state: PagingState<Int, DiscoverArticleDto>,
+    ): DiscoverKeys? {
         return state.pages.firstOrNull() {
             it.data.isNotEmpty()
         }?.data?.firstOrNull()?.let { article ->
-            database.headlineRemoteDao().getRemoteKeyByArticleId(article.url)
+            database.discoverRemoteKeyDao().getRemoteKeyByArticleId(article.url)
         }
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(
-        state: PagingState<Int, HeadlineDto>,
-    ): HeadlineRemoteKey? {
+        state: PagingState<Int, DiscoverArticleDto>,
+    ): DiscoverKeys? {
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.url?.let { id ->
-                database.headlineRemoteDao().getRemoteKeyByArticleId(id)
+                database.discoverRemoteKeyDao().getRemoteKeyByArticleId(id)
             }
         }
     }
 
     private suspend fun getRemoteKeyForLastItem(
-        state: PagingState<Int, HeadlineDto>,
-    ): HeadlineRemoteKey? {
+        state: PagingState<Int, DiscoverArticleDto>,
+    ): DiscoverKeys? {
         return state.pages.lastOrNull() {
             it.data.isNotEmpty()
         }?.data?.lastOrNull()?.let { article ->
-            database.headlineRemoteDao().getRemoteKeyByArticleId(article.url)
+            database.discoverRemoteKeyDao().getRemoteKeyByArticleId(article.url)
         }
     }
 
-
 }
-
-
-
-
-

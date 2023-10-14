@@ -1,5 +1,6 @@
 package hoods.com.newsy.features_components.discover.data.paging
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -10,8 +11,6 @@ import hoods.com.newsy.features_components.core.data.remote.models.toDiscoverArt
 import hoods.com.newsy.features_components.discover.data.local.models.DiscoverArticleDto
 import hoods.com.newsy.features_components.discover.data.local.models.DiscoverKeys
 import hoods.com.newsy.features_components.discover.data.remote.DiscoverApi
-import hoods.com.newsy.features_components.headline.data.local.model.HeadlineDto
-import hoods.com.newsy.features_components.headline.data.local.model.HeadlineRemoteKey
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -24,15 +23,18 @@ class DiscoverMediator(
     private val country: String = "",
     private val language: String = "",
 ) : RemoteMediator<Int, DiscoverArticleDto>() {
-
     override suspend fun initialize(): InitializeAction {
         val cacheTimeOut = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES)
         val isCacheTimeOut = System.currentTimeMillis() -
-                (database.discoverRemoteKeyDao().getCreationTime() ?: 0) < cacheTimeOut
-        return if (isCacheTimeOut) {
-            InitializeAction.SKIP_INITIAL_REFRESH
-        } else {
+                (database.discoverRemoteKeyDao().getCreationTime() ?: 0) > cacheTimeOut
+        // TODO: fetch all category and look if passed category is not in database and launch initial refresh
+        val allCategories = database.discoverRemoteKeyDao()
+            .getAllAvailableCategories()
+        val isNotCategoryAvailable = allCategories.find { it == category } == null
+        return if (isNotCategoryAvailable || isCacheTimeOut) {
             InitializeAction.LAUNCH_INITIAL_REFRESH
+        } else {
+            InitializeAction.SKIP_INITIAL_REFRESH
         }
     }
 
@@ -70,7 +72,6 @@ class DiscoverMediator(
                 language = language,
                 pageSize = state.config.pageSize
             )
-
             val discoverArticles = discoverArticlesApiResponse.articles
             val endOfPaginationReached = discoverArticles.isEmpty()
             database.withTransaction {

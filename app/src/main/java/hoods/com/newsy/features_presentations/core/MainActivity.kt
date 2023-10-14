@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import hoods.com.newsy.features_presentations.NewsyApp
 import hoods.com.newsy.features_presentations.core.ui.theme.NewsyTheme
 import hoods.com.newsy.features_presentations.home.HomeScreen
 
@@ -25,30 +26,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen(
-                        onViewMoreClick = {},
-                        onHeadlineItemClick = {},
-                        onSearchClick = {},
-                        openDrawer = {}
-                    )
+                    NewsyApp()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NewsyTheme {
-        Greeting("Android")
     }
 }

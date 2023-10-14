@@ -1,5 +1,6 @@
 package hoods.com.newsy.features_components.discover.data.repository
 
+
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -34,7 +35,8 @@ class DiscoverRepoImpl(
                 prefetchDistance = K.PAGE_SIZE - 1
             ),
             pagingSourceFactory = {
-                database.discoverArticleDao().getDiscoverArticleDataSource(category)
+                val data = database.discoverArticleDao().getDiscoverArticleDataSource(category)
+                data
             },
             remoteMediator = DiscoverMediator(
                 api = discoverApi,
@@ -63,5 +65,9 @@ class DiscoverRepoImpl(
             isFavourite = article.favourite,
             id = article.id
         )
+    }
+
+    override suspend fun getAllAvailableCategories(): List<String> {
+        return database.discoverRemoteKeyDao().getAllAvailableCategories()
     }
 }

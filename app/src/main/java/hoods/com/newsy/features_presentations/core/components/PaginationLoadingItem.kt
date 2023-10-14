@@ -1,5 +1,6 @@
 package hoods.com.newsy.features_presentations.core.components
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.paging.LoadState
 
@@ -19,7 +20,9 @@ fun PaginationLoadingItem(
             onLoading()
         }
 
-        else -> {}
+        else -> {
+            Log.i("discover", "PaginationLoadingItem: $pagingState")
+        }
 
 
     }

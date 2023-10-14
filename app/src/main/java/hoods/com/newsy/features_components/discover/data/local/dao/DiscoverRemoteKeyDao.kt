@@ -28,6 +28,11 @@ interface DiscoverRemoteKeyDao {
     )
     suspend fun getCurrentCategory():String
 
+    @Query(
+        "SELECT DISTINCT current_category FROM discover_keys"
+    )
+    suspend fun getAllAvailableCategories():List<String>
+
     @Query("UPDATE discover_keys SET current_category =:category")
     suspend fun updateCategory(category: String)
 }

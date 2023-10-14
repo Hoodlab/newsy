@@ -12,7 +12,7 @@ interface DiscoverApi {
 
     @GET(DISCOVER_END_POINT)
     suspend fun getDiscoverHeadlines(
-        @Query("api_key") key: String = K.API_KEY,
+        @Query("apiKey") key: String = K.API_KEY,
         @Query("category") category: String,
         @Query("country") country: String,
         @Query("language") language: String,

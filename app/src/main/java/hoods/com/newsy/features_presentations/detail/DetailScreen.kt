@@ -83,7 +83,7 @@ private fun DetailScreen(
         topBar = {
             TopAppBar(
                 title = article.articleMetaData.source,
-                navigationContent = navigationContent,
+                navigationIconContent = navigationContent,
                 scrollBehavior = scrollBehaviour
             )
         }

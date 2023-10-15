@@ -23,14 +23,7 @@ class SearchRemoteMediator(
 ) : RemoteMediator<Int, SearchDto>() {
 
     override suspend fun initialize(): InitializeAction {
-        val cacheTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES)
-        val isCacheTimeout = System.currentTimeMillis() - (database.searchKeyDao().getCreationTime()
-            ?: 0) < cacheTimeout
-        return if (isCacheTimeout) {
-            InitializeAction.SKIP_INITIAL_REFRESH
-        } else {
-            InitializeAction.LAUNCH_INITIAL_REFRESH
-        }
+      return  InitializeAction.LAUNCH_INITIAL_REFRESH
     }
 
 

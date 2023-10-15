@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val detailUseCases: DetailUseCases,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val unknownRoute = "unknown"
     val id: Int = savedStateHandle.get<Int>(K.articleId) ?: -1
@@ -44,6 +44,15 @@ class DetailViewModel @Inject constructor(
                 UiScreen.HeadlineScreen().route -> {
                     detailState = detailState.copy(
                         selectedDetailArticle = detailUseCases.getDetailHeadlineArticleUseCase(
+                            id
+                        ),
+                        error = false
+                    )
+                }
+
+                UiScreen.SearchScreen().route -> {
+                    detailState = detailState.copy(
+                        selectedDetailArticle = detailUseCases.getDetailSearchArticleUseCase(
                             id
                         ),
                         error = false

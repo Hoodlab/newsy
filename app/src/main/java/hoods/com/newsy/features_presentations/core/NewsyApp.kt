@@ -1,4 +1,4 @@
-package hoods.com.newsy.features_presentations
+package hoods.com.newsy.features_presentations.core
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

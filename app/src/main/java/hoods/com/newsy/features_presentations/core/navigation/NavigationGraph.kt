@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import hoods.com.newsy.features_presentations.detail.DetailScreen
 import hoods.com.newsy.features_presentations.headline.HeadlineScreen
 import hoods.com.newsy.features_presentations.home.HomeScreen
+import hoods.com.newsy.features_presentations.search.SearchScreen
 import hoods.com.newsy.utils.K
 
 @Composable
@@ -68,7 +69,26 @@ fun NewsyNavigationGraph(
                 navController.navigateUp()
             })
         }
+
+        composable(
+            route = UiScreen.SearchScreen().route
+        ) {
+            SearchScreen(
+                onSearchItemClick = {
+                    navActions.navigateToDetail(
+                        it.id,
+                        UiScreen.SearchScreen().route
+                    )
+                },
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+
     }
+
 
 }
 

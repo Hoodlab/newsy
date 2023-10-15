@@ -1,6 +1,5 @@
 package hoods.com.newsy.features_presentations.home.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,10 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hoods.com.newsy.features_components.core.domain.use_cases.SettingUseCases
 import hoods.com.newsy.features_components.discover.domain.use_cases.DiscoverUseCases
 import hoods.com.newsy.features_components.headline.domain.use_cases.HeadlineUseCases
+import hoods.com.newsy.utils.Resource
 import hoods.com.newsy.utils.Utils
-import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,28 +20,51 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val headlineUseCases: HeadlineUseCases,
     private val discoverUseCases: DiscoverUseCases,
+    private val settingUseCases: SettingUseCases,
 ) : ViewModel() {
     var homeState by mutableStateOf(HomeState())
         private set
 
     init {
+        initSettings()
+    }
+
+    init {
         loadArticles()
+    }
+
+    private fun initSettings() {
+        viewModelScope.launch {
+            val settings = settingUseCases.getSettingUseCase()
+            settings.collectLatest {
+                if (it is Resource.Success) {
+                    homeState = homeState.copy(
+                        setting = it.data
+                    )
+                }
+            }
+        }
     }
 
 
     private fun loadArticles() {
+        val countryCode =
+            Utils.countryCodeList[homeState.setting.preferredCountryIndex].code
+        val languageCode =
+            Utils.languageCodeList[homeState.setting.preferredLanguageIndex].code
+
         homeState = homeState.copy(
             headlineArticles =
             headlineUseCases.fetchHeadlineArticleUseCase(
                 category = homeState.selectedHeadlineCategory.category,
-                countryCode = Utils.countryCodeList[0].code,
-                languageCode = Utils.languageCodeList[0].code
+                countryCode = countryCode,
+                languageCode = languageCode
             ).cachedIn(viewModelScope),
             discoverArticles =
             discoverUseCases.fetchDiscoverArticleUseCase(
                 category = homeState.selectedDiscoverCategory.category,
-                language = "en",
-                country = "us"
+                language = languageCode,
+                country = countryCode
             ).cachedIn(viewModelScope)
         )
     }
@@ -91,10 +115,14 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateDiscoverArticles() {
+        val countryCode =
+            Utils.countryCodeList[homeState.setting.preferredCountryIndex].code
+        val languageCode =
+            Utils.languageCodeList[homeState.setting.preferredLanguageIndex].code
         val data = discoverUseCases.fetchDiscoverArticleUseCase(
             category = homeState.selectedDiscoverCategory.category,
-            language = "en",
-            country = "us"
+            language = languageCode,
+            country = countryCode
         ).cachedIn(viewModelScope)
         homeState = homeState.copy(
             discoverArticles = data

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -62,7 +63,7 @@ fun NewysAppDrawerContent(
 
         NavigationDrawerItem(
             label = { Text("Settings") },
-            icon = { Icon(imageVector = Icons.Filled.Home, null) },
+            icon = { Icon(imageVector = Icons.Filled.Settings, null) },
             selected = currentRoute == UiScreen.SettingsScreen().route,
             onClick = { navigateToSetting();closeDrawer() },
             modifier = Modifier.padding(

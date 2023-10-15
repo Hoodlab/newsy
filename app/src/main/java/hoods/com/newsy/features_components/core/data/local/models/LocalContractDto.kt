@@ -1,4 +1,4 @@
-package hoods.com.newsy.features_components.core.data.local
+package hoods.com.newsy.features_components.core.data.local.models
 
 abstract class LocalContractDto {
     abstract val id: Int

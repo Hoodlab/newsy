@@ -3,7 +3,7 @@ package hoods.com.newsy.features_components.discover.data.local.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import hoods.com.newsy.features_components.core.data.local.LocalContractDto
+import hoods.com.newsy.features_components.core.data.local.models.LocalContractDto
 
 @Entity(tableName = "discover_article")
 data class DiscoverArticleDto(

@@ -69,7 +69,16 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeUIEvents.OnDiscoverFavouriteChange -> {
-
+                val isFavourite = homeUIEvents.article.favourite
+                homeUIEvents.article.copy(
+                    favourite = !isFavourite
+                ).also {
+                    viewModelScope.launch {
+                        discoverUseCases.updateFavouriteDiscoverArticleUseCase(
+                            article = it
+                        )
+                    }
+                }
             }
         }
     }
@@ -78,12 +87,7 @@ class HomeViewModel @Inject constructor(
         homeState = homeState.copy(
             selectedDiscoverCategory = homeUIEvents.category
         )
-        // TODO:1 Remove category update since this is directly updated when saving
-        viewModelScope.launch {
-            discoverUseCases.updateCurrentCategoryUseCase(
-                homeState.selectedDiscoverCategory.category
-            )
-        }
+
     }
 
     private fun updateDiscoverArticles() {

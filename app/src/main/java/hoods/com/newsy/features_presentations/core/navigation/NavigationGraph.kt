@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import hoods.com.newsy.features_presentations.detail.DetailScreen
+import hoods.com.newsy.features_presentations.favourite.FavouriteScreen
 import hoods.com.newsy.features_presentations.headline.HeadlineScreen
 import hoods.com.newsy.features_presentations.home.HomeScreen
 import hoods.com.newsy.features_presentations.search.SearchScreen
@@ -83,6 +84,32 @@ fun NewsyNavigationGraph(
                 navigateUp = {
                     navController.navigateUp()
                 }
+            )
+        }
+
+        composable(route = UiScreen.FavouriteScreen().route) {
+            FavouriteScreen(
+                onItemClick = {
+                    val screenType = when (it.category) {
+                        K.HEADLINE_CATEGORY -> {
+                            UiScreen.HeadlineScreen().route
+                        }
+
+                        K.SEARCH_CATEGORY -> {
+                            UiScreen.HeadlineScreen().route
+                        }
+
+                        else -> UiScreen.DiscoverScreen().route
+                    }
+                    navActions.navigateToDetail(
+                        it.id,
+                        screenType
+                    )
+                },
+                onFavouriteChange = {
+                    // TODO:exercise Implement this
+                },
+                openDrawer = openDrawer
             )
         }
 

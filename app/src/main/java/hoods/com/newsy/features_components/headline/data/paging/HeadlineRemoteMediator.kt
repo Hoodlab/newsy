@@ -13,6 +13,7 @@ import hoods.com.newsy.features_components.headline.data.local.model.HeadlineDto
 import hoods.com.newsy.features_components.headline.data.local.model.HeadlineRemoteKey
 import hoods.com.newsy.features_components.headline.data.mapper.ArticleHeadlineDtoMapper
 import hoods.com.newsy.features_components.headline.data.remote.HeadlineApi
+import hoods.com.newsy.utils.K
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -95,7 +96,7 @@ class HeadlineRemoteMediator(
                     headlineRemoteDao().insertAll(remoteKeys)
                     headlineDao().insertHeadlineArticle(
                         articles = headlineArticles.map {
-                            it.toHeadlineArticle(page, category)
+                            it.toHeadlineArticle(page, K.HEADLINE_CATEGORY)
                         }
                     )
                 }

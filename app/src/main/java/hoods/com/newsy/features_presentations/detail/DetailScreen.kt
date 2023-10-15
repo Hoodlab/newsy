@@ -1,5 +1,6 @@
 package hoods.com.newsy.features_presentations.detail
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -63,6 +64,7 @@ fun DetailScreen(
                 (selectedArticleState as Resource.Error<DetailArticle>).error?.message,
                 Toast.LENGTH_SHORT
             ).show()
+            Log.e("Detail Screen", "DetailScreen: ", (selectedArticleState as Resource.Error<DetailArticle>).error)
         }
     }
 

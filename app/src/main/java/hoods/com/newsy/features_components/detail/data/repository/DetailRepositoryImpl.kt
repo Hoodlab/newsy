@@ -20,6 +20,7 @@ class DetailRepositoryImpl(
                 trySend(Resource.Success(data = headline))
             } catch (e: Exception) {
                 trySend(Resource.Error(e))
+                e.printStackTrace()
             }
             awaitClose { }
         }

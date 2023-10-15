@@ -27,7 +27,6 @@ class DiscoverMediator(
         val cacheTimeOut = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES)
         val isCacheTimeOut = System.currentTimeMillis() -
                 (database.discoverRemoteKeyDao().getCreationTime() ?: 0) > cacheTimeOut
-        // TODO: fetch all category and look if passed category is not in database and launch initial refresh
         val allCategories = database.discoverRemoteKeyDao()
             .getAllAvailableCategories()
         val isNotCategoryAvailable = allCategories.find { it == category } == null
